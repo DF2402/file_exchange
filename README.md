@@ -16,9 +16,11 @@
 #### 功能展示
 
 用戶登錄及注冊
+
 ![用戶登錄及注冊](photo/login_n_reg.png)
 
 用戶界面
+
 ![用戶界面](photo/user_interface.png)
 
 ### 管理員功能
@@ -30,6 +32,7 @@
 #### 功能展示
 
 管理員界面及dashboard
+
 ![管理員界面及dashboard](photo/admin_interface.png)
 
 ## 部署方式
