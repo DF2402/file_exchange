@@ -17,7 +17,7 @@
 
 用戶登錄及注冊
 
-<img src="photo/login_n_reg.png" alt="用戶登錄及注冊" width="500"/>
+<img src="photo/login_n_reg.png" alt="用戶登錄及注冊" width="1500"/>
 
 用戶界面
 
