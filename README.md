@@ -17,11 +17,11 @@
 
 用戶登錄及注冊
 
-<img src="photo/login_n_reg.png" alt="用戶登錄及注冊" width="1500"/>
+<img src="photo/login.png" alt="用戶登錄" width="1500"/>
 
 用戶界面
 
-![用戶界面](photo/user_interface.png)
+<img src="photo/user_interface.png" alt="用戶界面" width="1500"/>
 
 ### 管理員功能
 - 用戶管理（啟用/停用、刪除）
@@ -34,6 +34,18 @@
 管理員界面及dashboard
 
 ![管理員界面及dashboard](photo/admin_interface.png)
+
+## 技術路綫
+
+![技術路綫圖](photo/stack.png)
+
+- 後端：Node.js + Express
+- 數據庫：MongoDB + Mongoose
+- 文件存儲：GridFS
+- 前端：HTML5 + CSS3 + JavaScript
+- UI 框架：Bootstrap 5
+- 認證：JWT
+- 容器化：Docker + Docker Compose
 
 ## 部署方式
 
@@ -318,16 +330,6 @@ JWT_SECRET=your_jwt_secret
 ```bash
 npm start
 ```
-
-## 技術棧
-
-- 後端：Node.js + Express
-- 數據庫：MongoDB + Mongoose
-- 文件存儲：GridFS
-- 前端：HTML5 + CSS3 + JavaScript
-- UI 框架：Bootstrap 5
-- 認證：JWT
-- 容器化：Docker + Docker Compose
 
 ## 注意事項
 
