@@ -1,6 +1,7 @@
 # 文件共享系統
 
-*This project was developed with the assistance of Cursor. *
+This project was developed with the assistance of Cursor. 
+
 一個基於 Node.js 和 MongoDB 的文件共享系統，支持文件上傳、下載、分享和管理功能。
 
 ## 功能特點
