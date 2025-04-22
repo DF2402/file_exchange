@@ -1,5 +1,6 @@
 # 文件共享系統
 
+*This project was developed with the assistance of Cursor. *
 一個基於 Node.js 和 MongoDB 的文件共享系統，支持文件上傳、下載、分享和管理功能。
 
 ## 功能特點
@@ -12,11 +13,24 @@
 - 文件夾創建和管理
 - 文件分享和權限控制
 
+#### 功能展示
+
+用戶登錄及注冊
+![用戶登錄及注冊](photo/login_n_reg.png)
+
+用戶界面
+![用戶界面](photo/user_interface.png)
+
 ### 管理員功能
 - 用戶管理（啟用/停用、刪除）
 - 系統狀態監控
 - 存儲空間管理
 - 批量數據清理
+
+#### 功能展示
+
+管理員界面及dashboard
+![管理員界面及dashboard](photo/admin_interface.png)
 
 ## 部署方式
 
