@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件詳情 - 文件共享系統</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 導航欄 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="bi bi-file-earmark-text me-2"></i>文件共享系統
+            </a>
+            <div id="userSection" style="display: none;">
+                <span class="text-light me-3">
+                    <i class="bi bi-person-circle me-1"></i>
+                    <span id="username"></span>
+                </span>
+                <button class="btn btn-outline-light" onclick="logout()">
+                    <i class="bi bi-box-arrow-right me-1"></i>登出
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要內容 -->
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-file-earmark-text me-2"></i>文件詳情
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- 文件信息 -->
+                    <div class="col-md-8">
+                        <table class="table">
+                            <tr>
+                                <th style="width: 150px;">文件名稱：</th>
+                                <td id="fileName"></td>
+                            </tr>
+                            <tr>
+                                <th>文件大小：</th>
+                                <td id="fileSize"></td>
+                            </tr>
+                            <tr>
+                                <th>上傳時間：</th>
+                                <td id="uploadTime"></td>
+                            </tr>
+                            <tr>
+                                <th>上傳者：</th>
+                                <td id="uploader"></td>
+                            </tr>
+                            <tr>
+                                <th>文件類型：</th>
+                                <td id="fileType"></td>
+                            </tr>
+                            <tr>
+                                <th>下載次數：</th>
+                                <td id="downloadCount"></td>
+                            </tr>
+                            <tr>
+                                <th>共享狀態：</th>
+                                <td id="shareStatus"></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <!-- 二維碼 -->
+                    <div class="col-md-4 text-center">
+                        <div id="qrcode" class="mb-3"></div>
+                    </div>
+                </div>
+                <!-- 操作按鈕 -->
+                <div class="mt-4">
+                    <button class="btn btn-primary me-2" onclick="downloadFile()">
+                        <i class="bi bi-download me-1"></i>下載文件
+                    </button>
+                    <button class="btn btn-success me-2" onclick="shareFile()">
+                        <i class="bi bi-share me-1"></i>共享文件
+                    </button>
+                    <button class="btn btn-danger" onclick="deleteFile()">
+                        <i class="bi bi-trash me-1"></i>刪除文件
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 共享文件模態框 -->
+    <div class="modal fade" id="shareModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">共享文件</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="shareForm">
+                    <div class="modal-body">
+                        <input type="hidden" id="shareFileId">
+                        <div class="mb-3">
+                            <label for="shareUsername" class="form-label">用戶名</label>
+                            <input type="text" class="form-control" id="shareUsername" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-primary">共享</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+    <script src="file.js"></script>
+</body>
+</html> 

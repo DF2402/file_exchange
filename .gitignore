@@ -1,0 +1,61 @@
+# 依賴目錄
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# 環境變量
+.env
+.env.local
+.env.*.local
+
+# 編輯器目錄和文件
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# 日誌文件
+logs/
+*.log
+
+# 運行時數據
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# 測試覆蓋率目錄
+coverage/
+
+# 構建輸出
+dist/
+build/
+out/
+
+# 上傳文件目錄
+uploads/
+public/uploads/
+
+# Docker 相關
+.docker/
+docker-compose.override.yml
+
+# 臨時文件
+tmp/
+temp/
+
+# 數據庫文件
+*.sqlite
+*.db
+
+# 系統文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db 

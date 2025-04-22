@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件夾詳情 - 文件共享系統</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 導航欄 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="bi bi-file-earmark-text me-2"></i>文件共享系統
+            </a>
+            <div id="userSection" style="display: none;">
+                <span class="text-light me-3">
+                    <i class="bi bi-person-circle me-1"></i>
+                    <span id="username"></span>
+                </span>
+                <a href="profile.html" class="btn btn-outline-light me-2">
+                    <i class="bi bi-person me-1"></i>個人資料
+                </a>
+                <button class="btn btn-outline-light" onclick="logout()">
+                    <i class="bi bi-box-arrow-right me-1"></i>登出
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要內容 -->
+    <div class="container mt-4">
+        <!-- 麵包屑導航 -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="index.html">首頁</a></li>
+                <li class="breadcrumb-item active" aria-current="page">文件夾詳情</li>
+            </ol>
+        </nav>
+
+        <!-- 文件夾詳情 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-folder me-2"></i>
+                    <span id="folderName"></span>
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>基本信息</h6>
+                        <table class="table">
+                            <tr>
+                                <th>創建者：</th>
+                                <td id="folderCreator"></td>
+                            </tr>
+                            <tr>
+                                <th>創建時間：</th>
+                                <td id="folderCreatedAt"></td>
+                            </tr>
+                            <tr>
+                                <th>最後修改：</th>
+                                <td id="folderUpdatedAt"></td>
+                            </tr>
+                            <tr>
+                                <th>訪問權限：</th>
+                                <td id="folderAccess"></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>共享設置</h6>
+                        <div class="mb-3">
+                            <label class="form-label">共享用戶</label>
+                            <div id="sharedUsers" class="list-group">
+                                <!-- 共享用戶列表將由 JavaScript 動態生成 -->
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">添加共享用戶</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="newSharedUser" placeholder="輸入用戶名或電子郵件">
+                                <button class="btn btn-primary" onclick="addSharedUser()">添加</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 文件夾內容 -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">文件夾內容</h5>
+            </div>
+            <div class="card-body">
+                <div id="folderContent" class="list-group">
+                    <!-- 文件夾內容將由 JavaScript 動態生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 腳本引用 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="folder.js"></script>
+</body>
+</html> 
