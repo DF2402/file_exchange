@@ -24,20 +24,24 @@ const upload = multer({ storage });
 // 獲取文件列表
 router.get('/list', auth, async (req, res) => {
     try {
-        if (req.user.role == 'admin') {
-            const files = await File.find();
-            res.json(files);
-        }
-        else{
-            const files = await File.find({ 
+        let query = { parentFolder: null }; // 只獲取不在文件夾中的文件
+        
+        if (req.user.role !== 'admin') {
+            query = {
+                ...query,
                 $or: [
                     { uploadedBy: req.user._id },
                     { sharedWith: req.user._id },
                     { isPublic: true }
                 ]
-            });
-            res.json(files);
+            };
         }
+
+        const files = await File.find(query)
+            .populate('uploadedBy', 'username')
+            .sort({ createdAt: -1 });
+            
+        res.json(files);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -166,6 +170,19 @@ router.put('/:id/move', auth, async (req, res) => {
             return res.status(403).json({ message: '只有文件上傳者可以移動文件' });
         }
 
+        // 檢查目標文件夾是否存在
+        if (req.body.folderId) {
+            const targetFolder = await Folder.findById(req.body.folderId);
+            if (!targetFolder) {
+                return res.status(404).json({ message: '目標文件夾不存在' });
+            }
+            
+            // 檢查用戶是否有權限訪問目標文件夾
+            if (targetFolder.createdBy.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+                return res.status(403).json({ message: '沒有權限訪問目標文件夾' });
+            }
+        }
+
         const oldParentFolder = file.parentFolder;
         file.parentFolder = req.body.folderId;
         await file.save();
@@ -188,25 +205,17 @@ router.put('/:id/move', auth, async (req, res) => {
 
         res.json(file);
     } catch (error) {
+        console.error('移動文件錯誤:', error);
         res.status(500).json({ message: error.message });
     }
 });
 
 // 下載文件
-router.get('/:id/download', auth, async (req, res) => {
+router.get('/:id/download', async (req, res) => {
     try {
         const file = await File.findById(req.params.id);
         if (!file) {
             return res.status(404).json({ message: '文件不存在' });
-        }
-
-        // 檢查權限
-        if (!file.isPublic && 
-            file.uploadedBy.toString() !== req.user._id.toString() && 
-            !file.sharedWith.includes(req.user._id) &&
-            req.user.role !== 'admin'
-        ) {
-            return res.status(403).json({ message: '沒有權限下載此文件' });
         }
 
         const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {

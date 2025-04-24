@@ -16,6 +16,9 @@ COPY . .
 # 生產階段
 FROM node:20-alpine
 
+# 安裝 wget
+RUN apk add --no-cache wget
+
 # 創建非 root 用戶
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 

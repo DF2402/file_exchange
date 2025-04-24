@@ -46,6 +46,7 @@ services:
       - PORT=3500
       - JWT_EXPIRES_IN=24h
       - FILE_UPLOAD_MAX_SIZE=100mb
+      - HOST_IP=${HOST_IP:-192.168.1.132}
     volumes:
       - uploads_data:/app/uploads
       - logs_data:/app/logs

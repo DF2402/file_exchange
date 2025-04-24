@@ -109,7 +109,7 @@ function updateSharedUsers(sharedUsers) {
 // 加載文件夾內容
 async function loadFolderContent(folderId) {
     try {
-        const response = await fetch(`/api/folders/${folderId}/contents`, {
+        const response = await fetch(`/api/folders/${folderId}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
                 'Content-Type': 'application/json'

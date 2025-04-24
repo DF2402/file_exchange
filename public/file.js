@@ -100,10 +100,19 @@ async function generateQRCode(fileId) {
         // 獲取局域網 IP 地址
         const response = await fetch('/api/system/ip');
         const { ip } = await response.json();
-        const baseUrl = `http://${ip}:${window.location.port}`;
+        
+        // 使用當前協議（http 或 https）
+        const protocol = window.location.protocol;
+        const port = window.location.port;
+        
+        // 構建完整的下載 URL，使用獲取到的 IP 地址
+        const baseUrl = `${protocol}//${ip}${port ? ':' + port : ''}`;
+        const downloadUrl = `${baseUrl}/api/files/${fileId}/download`;
+        
+        console.log('生成的二維碼下載 URL:', downloadUrl);
         
         // 生成二維碼
-        await QRCode.toCanvas(canvas, `${baseUrl}/download/${fileId}`, {
+        await QRCode.toCanvas(canvas, downloadUrl, {
             width: 200,
             margin: 2,
             color: {
@@ -111,20 +120,44 @@ async function generateQRCode(fileId) {
                 light: '#ffffff'
             }
         });
+        
+        // 添加下載按鈕
+        const downloadButton = document.createElement('button');
+        downloadButton.className = 'btn btn-primary mt-2';
+        downloadButton.textContent = '下載二維碼';
+        downloadButton.onclick = () => downloadQRCode(fileId);
+        qrContainer.appendChild(downloadButton);
     } catch (error) {
         console.error('生成二維碼失敗:', error);
         showAlert('生成二維碼失敗', 'danger');
     }
 }
 
-function downloadQRCode(fileId) {
-    const canvas = document.getElementById('qrCanvas');
-    if (!canvas) return;
-
-    const link = document.createElement('a');
-    link.download = `${currentFile.originalname}-qrcode.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+async function downloadQRCode(fileId) {
+    try {
+        const canvas = document.getElementById('qrCanvas');
+        if (!canvas) {
+            throw new Error('找不到二維碼畫布');
+        }
+        
+        // 將 canvas 轉換為 blob
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        
+        // 創建下載鏈接
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `file-${fileId}-qr.png`;
+        document.body.appendChild(a);
+        a.click();
+        
+        // 清理
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    } catch (error) {
+        console.error('下載二維碼失敗:', error);
+        showAlert('下載二維碼失敗', 'danger');
+    }
 }
 
 function downloadFile() {

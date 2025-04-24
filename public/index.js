@@ -207,17 +207,20 @@ async function displayFiles() {
 
 // 創建文件夾元素
 function createFolderElement(folder) {
-    const div = document.createElement('div');
-    div.className = 'list-group-item';
-    div.innerHTML = `
+    const folderElement = document.createElement('div');
+    folderElement.className = 'list-group-item';
+    folderElement.innerHTML = `
         <div class="d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center">
-                <i class="bi bi-folder-fill text-warning me-2"></i>
+                <i class="bi bi-folder me-2"></i>
                 <span class="folder-name">${folder.name || folder.originalName || '未命名文件夾'}</span>
             </div>
             <div class="btn-group">
+                <button class="btn btn-sm btn-outline-info" onclick="window.location.href='folder.html?id=${folder._id}'">
+                    <i class="bi bi-info-circle"></i> 詳情
+                </button>
                 <button class="btn btn-sm btn-outline-primary" onclick="toggleFolder('${folder._id}')">
-                    <i class="bi bi-chevron-down"></i> 展開
+                    <i class="bi bi-chevron-down"></i> 打開
                 </button>
                 <button class="btn btn-sm btn-outline-danger" onclick="deleteFolder('${folder._id}')">
                     <i class="bi bi-trash"></i> 刪除
@@ -229,7 +232,7 @@ function createFolderElement(folder) {
             <div class="folder-subfolders"></div>
         </div>
     `;
-    return div;
+    return folderElement;
 }
 
 // 創建文件元素
@@ -248,12 +251,194 @@ function createFileElement(file) {
             <button class="btn btn-sm btn-outline-success" onclick="downloadFile('${file._id}')">
                 <i class="bi bi-download"></i> 下載
             </button>
+            <div class="dropdown">
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle rounded-0" type="button" id="moveDropdown-${file._id}" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-arrows-move"></i> 移動
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="moveDropdown-${file._id}" id="moveDropdownMenu-${file._id}">
+                    <li><a class="dropdown-item" href="#" onclick="moveFileToFolder('${file._id}', null)">
+                        <i class="bi bi-folder"></i> 根目錄
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li class="dropdown-item text-center">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status">
+                            <span class="visually-hidden">載入中...</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
             <button class="btn btn-sm btn-outline-danger" onclick="deleteFile('${file._id}')">
                 <i class="bi bi-trash"></i> 刪除
             </button>
         </div>
     `;
+    
+    // 初始化下拉菜單
+    const dropdownButton = div.querySelector(`#moveDropdown-${file._id}`);
+    const dropdownMenu = div.querySelector(`#moveDropdownMenu-${file._id}`);
+    
+    if (dropdownButton && dropdownMenu) {
+        dropdownButton.addEventListener('click', async () => {
+            // 只在第一次點擊時加載文件夾列表
+            if (dropdownMenu.children.length <= 3) { // 只有根目錄、分隔線和加載中提示
+                await loadFoldersForMove(file._id);
+            }
+        });
+    }
+    
     return div;
+}
+
+// 加載文件夾列表到移動下拉菜單
+async function loadFoldersForMove(fileId) {
+    try {
+        const dropdownMenu = document.getElementById(`moveDropdownMenu-${fileId}`);
+        if (!dropdownMenu) return;
+        
+        const response = await fetch('/api/folders/list', {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('獲取文件夾列表失敗');
+        }
+
+        const folders = await response.json();
+        
+        // 清空下拉菜單，保留根目錄選項
+        dropdownMenu.innerHTML = `
+            <li><a class="dropdown-item" href="#" onclick="moveFileToFolder('${fileId}', null)">
+                <i class="bi bi-folder"></i> 根目錄
+            </a></li>
+            <li><hr class="dropdown-divider"></li>
+        `;
+        
+        // 添加文件夾選項
+        if (folders && folders.length > 0) {
+            folders.forEach(folder => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <a class="dropdown-item" href="#" onclick="moveFileToFolder('${fileId}', '${folder._id}')">
+                        <i class="bi bi-folder"></i> ${folder.name}
+                    </a>
+                `;
+                dropdownMenu.appendChild(li);
+            });
+        } else {
+            const li = document.createElement('li');
+            li.innerHTML = '<span class="dropdown-item text-muted">暫無文件夾</span>';
+            dropdownMenu.appendChild(li);
+        }
+    } catch (error) {
+        console.error('加載文件夾列表錯誤:', error);
+        const dropdownMenu = document.getElementById(`moveDropdownMenu-${fileId}`);
+        if (dropdownMenu) {
+            dropdownMenu.innerHTML = `
+                <li><a class="dropdown-item" href="#" onclick="moveFileToFolder('${fileId}', null)">
+                    <i class="bi bi-folder"></i> 根目錄
+                </a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><span class="dropdown-item text-danger">
+                    <i class="bi bi-exclamation-triangle"></i> 載入文件夾失敗
+                </span></li>
+            `;
+        }
+    }
+}
+
+// 移動文件到文件夾
+async function moveFileToFolder(fileId, folderId) {
+    try {
+        // 顯示加載中狀態
+        const moveButton = document.querySelector(`#moveDropdown-${fileId}`);
+        if (moveButton) {
+            moveButton.disabled = true;
+            moveButton.innerHTML = `
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                移動中...
+            `;
+        }
+
+        const response = await fetch(`/api/files/${fileId}/move`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                folderId: folderId
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || `移動文件失敗: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('移動文件結果:', result);
+        
+        // 顯示成功消息
+        const toast = document.createElement('div');
+        toast.className = 'toast align-items-center text-white bg-success border-0';
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
+        toast.setAttribute('aria-atomic', 'true');
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-check-circle"></i> 文件已成功移動
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+        document.body.appendChild(toast);
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+        
+        // 更新當前文件夾狀態
+        if (folderId) {
+            currentFolder = folderId;
+            await updateBreadcrumb(folderId);
+        } else {
+            currentFolder = null;
+            await updateBreadcrumb(null);
+        }
+        
+        // 重新加載文件列表
+        await displayFiles();
+    } catch (error) {
+        console.error('移動文件錯誤:', error);
+        // 顯示錯誤消息
+        const toast = document.createElement('div');
+        toast.className = 'toast align-items-center text-white bg-danger border-0';
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
+        toast.setAttribute('aria-atomic', 'true');
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-exclamation-triangle"></i> ${error.message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+        document.body.appendChild(toast);
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+    } finally {
+        // 恢復按鈕狀態
+        const moveButton = document.querySelector(`#moveDropdown-${fileId}`);
+        if (moveButton) {
+            moveButton.disabled = false;
+            moveButton.innerHTML = `
+                <i class="bi bi-arrows-move"></i> 移動
+            `;
+        }
+    }
 }
 
 // 顯示文件詳情

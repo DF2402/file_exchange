@@ -11,8 +11,10 @@ const app = express();
 
 // 中间件配置
 app.use(cors({
-    origin: ['http://localhost:3500', 'http://127.0.0.1:3500'],
-    credentials: true
+    origin: '*',  // 允許所有來源訪問
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 
@@ -22,28 +24,71 @@ app.use('/api/files', require('./routes/files'));
 app.use('/api/folders', require('./routes/folders'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/users', require('./routes/users'));
+
+// 健康檢查端點
+app.get('/api/health', (req, res) => {
+  console.log('健康檢查端點被訪問');
+  try {
+    res.status(200).json({ 
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime()
+    });
+    console.log('健康檢查響應已發送');
+  } catch (error) {
+    console.error('健康檢查錯誤:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
 // 静态文件路由配置
 app.use(express.static(path.join(__dirname, '../public')));
 
 // 获取局域网 IP 地址
 app.get('/api/system/ip', (req, res) => {
-    const interfaces = os.networkInterfaces();
-    let ip = 'localhost';
+    // 優先使用環境變量中的 HOST_IP
+    const hostIp = process.env.HOST_IP;
     
-    // 遍历网络接口
-    for (const interfaceName in interfaces) {
-        const interface = interfaces[interfaceName];
-        for (const addr of interface) {
-            // 只获取 IPv4 地址
-            if (addr.family === 'IPv4' && !addr.internal) {
-                ip = addr.address;
+    if (hostIp) {
+      return res.json({ ip: hostIp });
+    }
+    
+    // 如果環境變量中沒有設置，則自動檢測系統 IP
+    try {
+        const networkInterfaces = os.networkInterfaces();
+        let ipAddress = null;
+        
+        // 遍歷所有網絡接口
+        for (const interfaceName in networkInterfaces) {
+            const interfaces = networkInterfaces[interfaceName];
+            
+            // 遍歷接口的所有地址
+            for (const interface of interfaces) {
+                // 只考慮 IPv4 地址，且排除回環地址
+                if (interface.family === 'IPv4' && !interface.internal) {
+                    ipAddress = interface.address;
+                    break;
+                }
+            }
+            
+            // 如果找到了非回環的 IPv4 地址，則跳出循環
+            if (ipAddress) {
                 break;
             }
         }
-        if (ip !== 'localhost') break;
+        
+        // 如果沒有找到合適的 IP 地址，則使用請求的 IP
+        if (!ipAddress) {
+            ipAddress = req.ip || req.connection.remoteAddress;
+        }
+        
+        res.json({ ip: ipAddress });
+    } catch (error) {
+        console.error('獲取 IP 地址時發生錯誤:', error);
+        // 如果出錯，使用請求的 IP
+        const fallbackIp = req.ip || req.connection.remoteAddress;
+        res.json({ ip: fallbackIp });
     }
-    
-    res.json({ ip });
 });
 
 // 处理 folder.html 路由
@@ -100,6 +145,6 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3500;
-app.listen(PORT, () => {
-  console.log(`服务器运行在端口 ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`服務器運行在端口 ${PORT}，監聽所有網絡接口`);
 });
